@@ -1,0 +1,13 @@
+# Domains in the Pi-hole "Social" group.
+# Add each one in Group Management -> Domains with "Add domain as wildcard" ticked,
+# then assign it to the Social group only.
+
+# YouTube
+youtube.com
+youtu.be
+googlevideo.com     # video streams
+ytimg.com           # thumbnails and images
+
+# Instagram
+instagram.com
+cdninstagram.com    # images and media

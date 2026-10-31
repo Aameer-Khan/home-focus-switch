@@ -1,0 +1,10 @@
+# /etc/netplan/50-cloud-init.yaml  (example — placeholders only, never commit real credentials)
+# Apply with: sudo netplan apply
+network:
+  version: 2
+  wifis:
+    wlo1:
+      dhcp4: true
+      access-points:
+        "<YOUR-HOME-WIFI-NAME>":
+          password: "<YOUR-WIFI-PASSWORD>"

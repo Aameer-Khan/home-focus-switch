@@ -1,0 +1,9 @@
+# Never commit real secrets
+*.env
+.env*
+secrets/
+*.key
+*.pem
+50-cloud-init.yaml
+!configs/netplan/50-cloud-init.example.yaml
+.DS_Store

@@ -1,0 +1,15 @@
+# /etc/systemd/system/wifi-powersave-off.service
+# Wi-Fi power saving dropped SSH sessions every few seconds. Turn it off at boot.
+# Replace /usr/sbin/iw with the output of `which iw`, and wlo1 with your interface.
+# Enable with: sudo systemctl enable --now wifi-powersave-off.service
+[Unit]
+Description=Turn off Wi-Fi power saving
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/iw dev wlo1 set power_save off
+
+[Install]
+WantedBy=multi-user.target
