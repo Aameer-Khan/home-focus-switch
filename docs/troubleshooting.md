@@ -181,6 +181,21 @@ Result: `ESTAB ... <server>:<port> 1.1.1.1:853 users:(("unbound",...))`.
 
 ---
 
+## 13. Instagram still loaded new posts after blocking instagram.com
+
+**Investigation**
+Query Log filtered by the phone's Tailscale IP: every `*.instagram.com` lookup was red (blocked), but fresh posts still appeared.
+
+**Cause**
+Instagram is owned by Meta and fetches some media from Facebook's CDN, `fbcdn.net`.
+
+**Fix**
+Add `fbcdn.net` as a wildcard in the **Social** group.
+
+**Pitfall:** entries added straight from the Query Log land in the **Default** group. Default entries apply all the time and ignore the Social switch, so move them to **Social**. Also, a wildcard like `(\.|^)instagram\.com$` already covers `graph.instagram.com` and `test-gateway.instagram.com`, so separate entries for those are redundant.
+
+---
+
 ## Handy commands
 
 ```bash
