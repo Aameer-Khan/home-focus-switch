@@ -37,6 +37,12 @@ flowchart LR
 
 **Pi-hole is the engine, Tailscale is the switch.** Day to day, I never open the Pi-hole dashboard.
 
+### It works
+
+On day one, Pi-hole blocked 322 lookups. YouTube and its video servers (`googlevideo.com`) top the blocked list:
+
+![Pi-hole dashboard showing blocked YouTube domains](docs/images/pihole-dashboard.png)
+
 ---
 
 ## Stack
