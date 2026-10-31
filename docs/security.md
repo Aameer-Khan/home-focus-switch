@@ -9,12 +9,12 @@ What this setup changes, what it costs, and why I'm fine with it.
 | Device DNS (with Tailscale on) | Router's DNS | Pi-hole, through the Tailscale tunnel |
 | Browser "Secure DNS" | On | Off |
 | Android Private DNS | On / Automatic | Off |
-| Pi-hole → internet | n/a | Plain DNS to Cloudflare/Google |
+| Pi-hole → internet | n/a | Unbound → Cloudflare over DNS-over-TLS (encrypted), DNSSEC on |
 | Pi-hole listening mode | Local subnet only | All origins (for Tailscale clients) |
 
 ## What I give up
 
-1. **The ISP can read the domain names Pi-hole looks up**, because upstream DNS is unencrypted. In practice this was mostly true before as well, and the ISP can infer sites from other signals. *Planned fix:* `cloudflared` (DNS-over-HTTPS) as Pi-hole's upstream.
+1. ~~**The ISP can read the domain names Pi-hole looks up.**~~ *Fixed:* Unbound now sends upstream lookups over DNS-over-TLS, so the ISP only sees an encrypted connection to 1.1.1.1:853. It can still roughly infer sites from the IP addresses I connect to afterwards, but the DNS list itself is private. Cloudflare (or Quad9) now sees the lookups instead of the ISP.
 2. **The server is a single point of failure.** If it's down while Tailscale is on, websites stop loading. *Escape hatch:* turn Tailscale off and you're instantly back on normal DNS.
 3. **Pi-hole logs every lookup** from my devices. It's stored only on the server.
 
@@ -31,7 +31,8 @@ Devices don't use a secondary DNS only when the primary fails. They use whicheve
 
 ## Hardening still to do
 
-- [ ] SSH keys, then `PasswordAuthentication no`
-- [ ] `cloudflared` upstream
+- [x] SSH key login from the Mac
+- [ ] `PasswordAuthentication no` once keys are on every device
+- [x] Encrypted upstream DNS (Unbound + DoT), with DNSSEC
 - [ ] Unattended security updates confirmed on
 - [ ] Uptime monitoring with an alert

@@ -181,3 +181,71 @@ In Pi-hole, go to **Group Management → Clients**, add each device's **Tailscal
 - **Tailscale on** → focus mode. **Tailscale off** → free mode.
 - Browsers cache DNS. After flipping, fully quit and reopen the browser (Cmd+Q on Mac) or force-stop the app.
 - Master switch for everything: **Group Management → Groups → Social → Enabled/Disabled**.
+- **On mobile data too:** with Tailscale on, the phone's DNS still tunnels home to Pi-hole. Inside the tunnel the phone always has the same `100.x` IP, so Pi-hole still recognises it as a Social member.
+
+## 8. Encrypt upstream DNS (Unbound + DNS-over-TLS)
+
+Without this, Pi-hole sends allowed lookups to Cloudflare/Google in plain text, and the ISP can read every site name.
+
+> Many guides use `cloudflared proxy-dns` for DNS-over-HTTPS. Cloudflare removed that command from releases starting February 2026, so this uses **Unbound** forwarding over **DNS-over-TLS** instead.
+
+```bash
+sudo apt install unbound -y      # a "failed to start" error here is expected: port 53 is taken by Pi-hole
+sudo vi /etc/unbound/unbound.conf.d/pi-hole.conf
+sudo unbound-checkconf           # "no errors"
+sudo systemctl enable --now unbound
+dig @127.0.0.1 -p 5335 google.com +short
+```
+
+Config: [`configs/unbound/pi-hole.conf`](../configs/unbound/pi-hole.conf). Unbound listens only on `127.0.0.1:5335`, forwards to `1.1.1.1@853#cloudflare-dns.com` (the part after `#` is the name the TLS certificate must match), and validates DNSSEC.
+
+If the package enabled `unbound-resolvconf.service`, disable it so Unbound doesn't take over the server's own DNS:
+
+```bash
+systemctl is-enabled unbound-resolvconf.service
+sudo systemctl disable --now unbound-resolvconf.service
+```
+
+Point Pi-hole at it: **Settings → DNS**, untick the built-in upstreams, add custom `127.0.0.1#5335`, **Save & Apply**. Check:
+
+```bash
+sudo pihole-FTL --config dns.upstreams          # [ 127.0.0.1#5335 ]
+dig @127.0.0.1 "test$RANDOM.cloudflare.com" +short; sudo ss -tnp | grep ':853'
+```
+
+The `ss` line should show `unbound` connected to `1.1.1.1:853`. A random name is needed because cached answers never leave the server, and Unbound closes idle TLS connections quickly.
+
+## 9. SSH key login
+
+On the **Mac** (the machine you connect *from*):
+
+```bash
+ls ~/.ssh/id_ed25519*                              # reuse an existing key if there is one
+ssh-keygen -t ed25519 -C "<device-name>"           # otherwise create one, with a passphrase
+ssh-copy-id -i ~/.ssh/id_ed25519.pub <user>@192.168.1.19
+```
+
+Add to `~/.ssh/config` **on the Mac**:
+
+```
+Host homeserver
+  HostName 192.168.1.19
+  User <user>
+  IdentityFile ~/.ssh/id_ed25519
+  AddKeysToAgent yes
+  UseKeychain yes
+  ServerAliveInterval 30
+  ServerAliveCountMax 4
+```
+
+`ssh homeserver` should now log in without the server password. Each extra device gets its own key line in the server's `~/.ssh/authorized_keys`.
+
+Later, once keys are proven on every device you use, turn off password login:
+
+```bash
+sudo vi /etc/ssh/sshd_config.d/no-passwords.conf   # PasswordAuthentication no
+sudo systemctl restart ssh
+ssh -o PubkeyAuthentication=no homeserver          # should fail: Permission denied (publickey)
+```
+
+Test from a second terminal while the first stays logged in. The laptop's own keyboard login is unaffected, so you can't lock yourself out completely.

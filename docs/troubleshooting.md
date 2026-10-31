@@ -147,6 +147,40 @@ The ISP technician kept the admin login. The Wi-Fi password isn't the admin pass
 
 ---
 
+## 10. `ssh homeserver`: "Could not resolve hostname"
+
+**Cause**
+The `Host homeserver` block had been written to `~/.ssh/config` on the **server**, not the Mac. SSH config is read on the machine you connect *from*, so the Mac treated `homeserver` as a real hostname and DNS failed.
+
+**Fix**
+Create `~/.ssh/config` on the Mac. Check the prompt before typing (`admin@<mac>` vs `<user>@<server>`). `ssh -G homeserver | grep -i ^hostname` shows what SSH actually resolved.
+
+---
+
+## 11. `cloudflared` for DNS-over-HTTPS is gone
+
+**Cause**
+Most Pi-hole guides use `cloudflared proxy-dns`. Cloudflare removed that command from releases starting February 2026.
+
+**Fix**
+Unbound with `forward-tls-upstream: yes` to Cloudflare/Quad9 on port 853 (DNS-over-TLS). Same goal, packaged by Ubuntu, and adds DNSSEC. See [setup step 8](setup.md#8-encrypt-upstream-dns-unbound--dns-over-tls).
+
+---
+
+## 12. `ss | grep :853` showed nothing after setting up Unbound
+
+**Cause**
+The test query was answered from Pi-hole's cache, so it never reached Unbound. Unbound also closes idle TLS connections quickly.
+
+**Fix**
+Force a fresh lookup and check immediately:
+```bash
+dig @127.0.0.1 "test$RANDOM.cloudflare.com" +short; sudo ss -tnp | grep ':853'
+```
+Result: `ESTAB ... <server>:<port> 1.1.1.1:853 users:(("unbound",...))`.
+
+---
+
 ## Handy commands
 
 ```bash

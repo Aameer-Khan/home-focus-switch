@@ -21,6 +21,11 @@ systemctl is-active --quiet pihole-FTL && ok "pihole-FTL is running" || bad "pih
 systemctl is-enabled --quiet pihole-FTL && ok "pihole-FTL starts on boot" || bad "pihole-FTL is not enabled at boot"
 systemctl is-active --quiet ssh || systemctl is-active --quiet ssh.socket && ok "SSH is available" || bad "SSH is not running"
 systemctl is-active --quiet tailscaled && ok "tailscaled is running" || bad "tailscaled is not running"
+systemctl is-active --quiet unbound && ok "unbound (encrypted upstream DNS) is running" || bad "unbound is not running"
+if command -v pihole-FTL >/dev/null; then
+  ups="$(sudo -n pihole-FTL --config dns.upstreams 2>/dev/null)"
+  [ -n "$ups" ] && info "Pi-hole upstreams: $ups"
+fi
 
 if [ -n "$WIFI_IF" ] && command -v iw >/dev/null; then
   ps_state="$(iw dev "$WIFI_IF" get power_save 2>/dev/null | awk '{print $NF}')"
