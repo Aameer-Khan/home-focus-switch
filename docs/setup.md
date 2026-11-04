@@ -142,6 +142,8 @@ dig @192.168.1.19 google.com +short        # real IPs → allowed
 
 A wildcard entry becomes a regex like `(\.|^)youtube\.com$`, which matches `youtube.com` and every subdomain (`m.youtube.com`, `www.youtube.com`) but not look-alikes such as `youtube.com.example.net`.
 
+For sites that keep changing their domain ending, use the **RegEx filter** tab instead, e.g. `(\.|^)multimovies\.` matches `multimovies` with any ending.
+
 > Watch out: adding `www.instagram.com` instead of `instagram.com` only blocks the `www.` host. The app uses `i.instagram.com`, `graph.instagram.com` and others.
 
 ## 6. Tailscale as the switch
@@ -171,6 +173,7 @@ sudo pihole-FTL --config dns.listeningMode ALL
 - Remove any manual DNS settings you added earlier, so that **Tailscale off = normal internet**.
 - **Android:** Private DNS → Off. Wi-Fi IP settings → DHCP.
 - **Brave / Chrome:** turn off *Use secure DNS*, or the browser can skip system DNS.
+- **iPad / iPhone:** turn off *iCloud Private Relay*, which sends Safari's lookups to Apple instead.
 
 ### Put the devices in the switch
 

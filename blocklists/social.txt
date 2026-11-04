@@ -12,3 +12,25 @@ ytimg.com           # thumbnails and images
 instagram.com
 cdninstagram.com    # images and media
 fbcdn.net           # Meta's CDN: Instagram loads new posts and reels from here
+
+# Netflix
+netflix.com
+nflxvideo.net       # video streams
+nflximg.net         # images
+nflxext.com         # app/site assets
+nflxso.net          # app/site assets
+
+# Prime Video (do NOT block amazon.com / amazon.in / media-amazon.com: shared with shopping)
+primevideo.com
+amazonvideo.com
+aiv-cdn.net         # video delivery
+aiv-delivery.net    # video delivery
+pv-cdn.net          # video delivery
+
+# JioHotstar
+hotstar.com
+jiohotstar.com
+
+# Regex entries (add in the "RegEx filter" tab, not as wildcards)
+# MultiMovies keeps changing its domain ending (.lat, .uno, .art ...), so match any ending:
+# (\.|^)multimovies\.

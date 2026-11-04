@@ -1,8 +1,8 @@
 # Home Focus Switch
 
-A one-tap **social media on/off switch** for my own devices, built on an old laptop turned into a home server.
+A one-tap **social media and streaming on/off switch** for my own devices, built on an old laptop turned into a home server.
 
-- **Tailscale ON** → YouTube, Instagram and friends don't load.
+- **Tailscale ON** → YouTube, Instagram, Netflix, Prime Video, JioHotstar and friends don't load.
 - **Tailscale OFF** → everything works normally.
 
 I kept reaching for social media without thinking. Willpower wasn't enough, so I made the sites simply *not open* unless I consciously flip a switch.
@@ -16,6 +16,7 @@ flowchart LR
     subgraph Devices
         M[MacBook]
         P[Android phone]
+        T[Tablet]
     end
 
     subgraph Laptop["Old Asus laptop · Ubuntu Server 26.04"]
@@ -25,6 +26,7 @@ flowchart LR
 
     M -- "DNS over Tailscale<br/>(WireGuard tunnel)" --> PH
     P -- "DNS over Tailscale<br/>(WireGuard tunnel)" --> PH
+    T -- "DNS over Tailscale<br/>(WireGuard tunnel)" --> PH
     PH -- "allowed names" --> UB
     UB -- "DNS-over-TLS :853<br/>(encrypted)" --> U[Cloudflare 1.1.1.1<br/>Quad9 backup]
     M -. "normal traffic goes direct" .-> I((Internet))
